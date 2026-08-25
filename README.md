@@ -1,46 +1,228 @@
-# Product Controller Skill for Codex
+# Product Controller：面向 Codex 的软件总控技能
 
-`product-controller` is a Codex skill for supervising software work between a stakeholder and one or more coding agents. It is designed for high-risk takeovers, repeated rework, role drift, state replacement, executor coordination, acceptance decisions, and durable handoff.
+**简体中文** | [English](README_EN.md)
 
-## What it changes
+> 把用户的大白话需求稳定地传递给编码执行者，并在复杂接管、反复返工、状态替换和真实验收中持续守住产品目标。
 
-- Keeps the user's product goal and approved semantics separate from implementation summaries.
-- Separates controller, executor, verifier, and user decision ownership.
-- Uses bounded asynchronous dispatch instead of constant controller-executor chatter.
-- Requires explicit replacement and orphan checks when one implementation or state owner supersedes another.
-- Distinguishes implementation evidence from real user-journey acceptance.
-- Reports recommendations, short- and long-term costs, rework risk, and the next user decision in plain language.
+`product-controller` 不是又一个“让 Agent 更努力”的提示词。它为用户与编码 Agent 之间增加一个明确的软件总控角色：总控负责理解产品语义、冻结任务边界、调度执行者、审查证据、控制返工风险和维护可交接状态；执行者负责写代码；用户只处理真正影响产品含义、外部风险和最终体验的决定。
 
-## Install
+**当前成熟度：`v0.1.0-beta.1`，仅建议受监督试用。**
 
-Clone the repository into your personal Codex skills directory.
+## 为什么需要它
 
-Windows PowerShell:
+复杂软件任务失败，往往不是因为模型不会写代码，而是因为协作链逐渐失真：
+
+```text
+用户的大白话目标
+  ↓ 被总控概括，细节发生偏移
+执行者只解决眼前局部问题
+  ↓ 新代码继续叠加，旧状态没有真正退出
+测试选择最容易通过的路径
+  ↓ 技术报告显示成功，但正式用户旅程仍然断裂
+下一任总控继承过时结论
+  ↓ 返工、状态混乱和长期维护成本继续增加
+```
+
+本技能针对的正是这条失控链，而不是某一种语言、框架或测试工具。
+
+## 它主要解决什么问题
+
+| 常见失败 | `product-controller` 的约束 |
+|---|---|
+| 用户确认的需求被转述后变了意思 | 建立带来源和版本的语义核心；变更必须显式取代旧版本 |
+| 总控与执行者持续碎片交流 | 一次完整下发，执行者开始后静默，只在终点或真实决策门回报 |
+| 陷入局部故障后忘记总体目标 | 维护轻量战略台账，区分产品进展与辅助工具进展 |
+| 新旧实现长期并存、状态越来越多 | 对替换任务强制检查旧入口、旧写入者和本次变更产生的孤儿 |
+| 测试只证明容易路径 | 区分实现证据、正式产品路径和真实用户验收 |
+| 总控把技术流水原样转发给用户 | 报告必须说明现实影响、推荐路线、代价、返工风险和下一步 |
+| 交接文档逐渐成为错误事实源 | 当前代码、运行证据和最新用户反馈始终高于交接材料 |
+| 执行者失联或旧结果晚到污染新任务 | 使用任务、执行者、语义版本、继续序号和截止代次进行消息隔离 |
+
+## 核心能力
+
+### 1. 明确的决策权边界
+
+- **用户决定：** 产品行为、数据语义、外部依赖、真实设备、不可逆损失和最终体验。
+- **总控决定：** 已确认目标内的实现路线、任务范围、执行者选择、证据是否充分和是否需要返工。
+- **执行者决定：** 不改变产品语义的局部编码细节和自检命令。
+
+普通技术命令不会反复打扰用户；会改变产品含义或长期风险的变通必须用大白话说明后请求批准。
+
+### 2. 语义保真与显式取代
+
+总控不会把长对话随意压缩成一个模糊任务。它维护带来源的语义核心，并记录：
+
+- 当前任务和总体目标；
+- 用户确认的约束与验收标准；
+- 语义版本及其取代关系；
+- 哪些旧证据因新决定而失效。
+
+同一个目标的修订会生成新版本；总体目标发生改变时，会建立有血缘关系的新任务。
+
+### 3. 低碎片的异步协作
+
+```text
+用户讨论并确认目标
+  ↓
+总控下发一次完整任务合同
+  ↓
+执行者 STARTED 后独立工作
+  ↓ 仅在 DONE / DECISION_REQUIRED / TIMEBOX_EXCEEDED / BLOCKED 时唤醒
+总控独立抽查和验收
+  ↓
+只有产品级决定才询问用户
+```
+
+这减少了总控陪跑、重复转述和执行者被频繁打断造成的上下文损失。
+
+### 4. 总体战略与进度控制
+
+总控维护一个位于产品仓库之外的轻量台账，包括北极星目标、当前里程碑、已接受能力、剩余缺口、最近的产品进展、辅助工作消耗、开放决定和停止条件。
+
+连续两个检查点只有浏览器、测试脚本、报告工具等辅助进展而没有产品进展时，默认停止当前路线并重新规划。
+
+### 5. 防止“新代码叠旧代码”
+
+对于原子替换，完成不仅意味着新实现能运行，还必须证明：
+
+- 正式消费者已经使用新入口；
+- 旧入口和旧写入路径不可再达；
+- 本次修改造成的孤儿代码、测试和适配器已经处理；
+- 不存在第二个可独立写入的事实源；
+- 相关成熟用户旅程通过。
+
+确实需要多版本共存时，必须作为有权威源、回滚、监控和退出条件的分阶段迁移管理。
+
+### 6. 分层验收
+
+| 证据等级 | 能证明什么 | 不能证明什么 |
+|---|---|---|
+| 实现证据 | 局部逻辑、构建或单元测试正确 | 正式入口和用户流程可用 |
+| 产品路径证据 | 真实支持输入走过正式入口 | 主观体验或物理结果正确 |
+| 用户验收 | 视觉、操作或物理结果符合预期 | 未观测到的内部不变量 |
+
+“测试全绿”“页面能启动”“截图里有结果”都不能自动升级为用户验收通过。
+
+### 7. 路线、代价和返工风险报告
+
+当存在多种路线时，总控需要主动给出：
+
+- 推荐方案及理由；
+- 可选方案；
+- 短期成本与长期收益；
+- 状态债务、返工概率和回退难度；
+- 是否必须由用户批准；
+- 用户最短应该回复什么。
+
+### 8. 可验证的接管与交接
+
+新总控不会把交接文档直接当成事实。它先核对少量决策关键点，再继续调度。交接内容保留任务、语义血缘、工作区状态、执行者归属、证据等级、失效结论、开放决定和下一停止条件。
+
+## 适用场景
+
+- 软件被多轮 Agent 修改后出现多状态、旧入口和反复返工；
+- 用户需要用自然语言管理一个或多个编码执行者；
+- 大型重构、状态替换、兼容迁移或跨会话接管；
+- 执行者报告很多，但用户仍无法判断软件是否真的可用；
+- 需要把长期目标、当前任务、执行证据和用户决定持续分开管理。
+
+## 不适用或不应过度使用的场景
+
+- 一个低风险、一步完成且无需委派的小修改；
+- 只有单个执行者、没有接管或验收复杂性的普通问答；
+- 希望技能替代操作系统权限、代码审查或真实设备安全控制；
+- 希望模型在没有用户确认的情况下决定产品语义。
+
+小任务可以压缩合同和报告，但不能借“小”绕过真正相关的产品风险。
+
+## 安装
+
+将仓库克隆到个人 Codex skills 目录。
+
+Windows PowerShell：
 
 ```powershell
 git clone https://github.com/gaoc77436-bit/product-controller-skill.git "$env:USERPROFILE\.codex\skills\product-controller"
 ```
 
-macOS or Linux:
+macOS 或 Linux：
 
 ```bash
 git clone https://github.com/gaoc77436-bit/product-controller-skill.git ~/.codex/skills/product-controller
 ```
 
-Alternatively, download the repository and place it so this file exists:
+若要固定使用当前受监督测试版：
+
+```bash
+git checkout v0.1.0-beta.1
+```
+
+也可以下载ZIP并解压，最终确保下面的文件存在：
 
 ```text
 ~/.codex/skills/product-controller/SKILL.md
 ```
 
-Start a new Codex task and invoke `$product-controller`, or ask Codex to act as the product controller for a software takeover or delegated implementation.
+## 快速开始
 
-## Repository layout
+在新的 Codex 任务中明确调用：
+
+```text
+使用 $product-controller。
+
+你是这个软件任务的总控，不直接修改产品代码。
+先用大白话确认我的真实目标、当前证据和仍需我决定的问题；
+目标确认后，再把任务完整下发给执行者，并独立验收其结果。
+```
+
+它也支持根据“担任软件总控”“接管失败项目”“监督执行会话”等自然语言自动发现，但在高风险任务中推荐显式调用。
+
+## 更新
+
+如果使用的是Git克隆版本：
+
+```bash
+git pull
+```
+
+生产或高风险任务建议固定到具体Release标签，审阅新版本说明后再升级。
+
+## 重要局限
+
+必须正面理解这些限制：
+
+1. **不是权限沙箱。** 它不能从技术上阻止模型越权写代码或忽略规则。
+2. **不能消灭所有返工。** 它降低语义漂移、状态叠加和错误验收概率，但无法保证零缺陷。
+3. **模型可能共享盲点。** 使用同类模型担任执行者和验证者时，独立角色不等于完全独立认知。
+4. **真实实战仍不足。** 当前主要通过合成压力测试和独立行为审计，完整真实项目闭环仍在积累。
+5. **协议依赖执行纪律。** 任务编号、语义版本、截止代次和状态台账是行为协议，不是底层运行时强制事务。
+6. **交接仍可能过期。** 当前代码、运行事实和用户最新反馈必须持续高于任何交接材料。
+7. **最终验收仍属于用户。** 视觉体验、实际操作和物理设备结果不能只由模型宣布通过。
+8. **需要可用的委派能力。** 没有执行者或子任务能力时，总控只能完成只读准备并进入阻断状态。
+
+## 当前验证状态
+
+`v0.1.0-beta.1` 已通过以下受监督试用前检查：
+
+- 语义版本与取代；
+- 异步开始、暂停、继续和截止事件；
+- 旧执行者晚到结果隔离；
+- 战略漂移与辅助工作止损；
+- 路线成本和返工风险报告；
+- 原子替换、多状态和困难验收路径；
+- 脏工作区保护和接管交接；
+- 独立发布审计。
+
+这些结果证明规则在测试场景中能改善决策，不等于已经证明所有真实项目都能可靠运行。
+
+## 仓库结构
 
 ```text
 product-controller/
 |-- SKILL.md
 |-- agents/openai.yaml
+|-- README.md
+|-- README_EN.md
 `-- references/
     |-- operating-contract.md
     |-- coordination-and-strategy.md
@@ -49,16 +231,10 @@ product-controller/
     `-- evaluation.md
 ```
 
-## Important limitations
+## 反馈与贡献
 
-This skill is a behavioral operating contract, not a permission sandbox. It reduces coordination and acceptance failures but cannot guarantee that a model will never violate instructions, miss a defect, or share the same blind spot as another model.
+发现误触发、规则冲突、过度流程化、语义漂移或真实项目失败案例时，可以提交Issue。改进建议应尽量包含：原始目标、技能实际行为、期望行为、风险和最小复现。
 
-Use supervised trials before relying on it for broad or irreversible changes. Keep product writes isolated, require independent evidence, and retain human approval for architecture, product semantics, physical-device work, and final user acceptance.
+## 许可证
 
-## Status
-
-The skill has passed synthetic and independent behavioral evaluation for supervised personal trials. Real controller-executor lifecycles and project-specific acceptance still need to be validated in the environment where it is used.
-
-## License
-
-MIT
+[MIT](LICENSE)
