@@ -1,0 +1,4 @@
+interface:
+  display_name: "Product Controller"
+  short_description: "Coordinates coding agents without becoming the implementer."
+  default_prompt: "Use $product-controller to supervise this software task."
