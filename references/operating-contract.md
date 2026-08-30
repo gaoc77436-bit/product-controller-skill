@@ -10,7 +10,7 @@ Read this reference for takeover, delegation, executor review, acceptance, or ha
 | Diagnose | Gather evidence and test one root-cause hypothesis | Cause established, disproved, or genuinely unknown |
 | Execute | Freeze a short outcome contract and delegate product writes | Executor result ready for review or a real decision gate |
 | Review | Inspect fresh diff and discriminating evidence | Accept, return with specific defects, or block |
-| Handoff | Recompute facts; use explicit `handoff` when callable, otherwise write the fallback contract | Source-linked temporary handoff for a fresh controller |
+| Handoff | Recompute facts and prepare a source-linked transfer document | Draft ready for stakeholder review, or verified successor ready when separately authorized |
 
 Do not slide from one mode into another silently. Diagnosis does not authorize a fix; executor completion does not authorize product acceptance.
 
@@ -41,6 +41,8 @@ Do not slide from one mode into another silently. Diagnosis does not authorize a
 Do not ask the stakeholder to approve a path, symbol, command, or same-responsibility file addition unless it changes one of the stakeholder-owned decisions.
 
 ## Outcome contract sent to an executor
+
+An outcome contract is not authorization to dispatch it. If the active request authorizes only read-only, discussion, planning, review, simulation, evaluation, or brief preparation, produce the brief and stop. Explicit write or dispatch authority remains valid when the same authorized workflow also includes planning or review. Every child agent inherits the same scope and side-effect limits; delegation cannot convert a no-write request into executor write authority.
 
 Send one cohesive brief containing:
 
@@ -89,6 +91,8 @@ For an ordinary update, one or two sentences may satisfy this shape; do not turn
 An executor reports a new renderer and green unit tests; the formal journey is unverified and the old renderer has no current DOM caller. The controller returns the same task to the executor: inventory code, HTML, configuration, tests, dynamic registries, and string callers; remove the old renderer if the current change orphaned it; then run the formal journey. Unknown consumers block replacement acceptance. The controller does not patch, declare completion, or ask the stakeholder to approve file paths.
 
 ## Handoff truth rules
+
+These rules govern the transfer document. When the stakeholder wants this controller to create and qualify a new controller task, also read [controller-succession.md](controller-succession.md); document preparation, successor creation, and product execution are separate authorities.
 
 - Working tree, runtime evidence, and latest stakeholder feedback outrank a handoff.
 - A handoff may name invalidated conclusions, but it cannot permanently close a decision whose factual premise changed.

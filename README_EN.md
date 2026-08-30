@@ -6,7 +6,16 @@
 
 `product-controller` is not another prompt that asks an agent to “try harder.” It introduces an explicit software controller between a stakeholder and coding agents. The controller owns semantic fidelity, bounded delegation, evidence review, strategic progress, rework control, and durable handoff. Executors own product writes. The stakeholder is involved only when a decision changes product meaning, external risk, or final user acceptance.
 
-**Current maturity: `v0.1.0-beta.1`, recommended only for supervised trials.**
+**Current maturity: `v0.3.0-beta.1`, recommended only for supervised trials.**
+
+## What is new in the v0.3 beta
+
+- Delegation cannot expand read-only, discussion, planning, evaluation, or brief-only authority, while explicitly authorized plan-then-execute workflows still proceed.
+- Adds a verifiable controller-succession protocol with separate authority for drafting, post-draft confirmation, read-only onboarding, control transfer, and later product continuation.
+- Active or paused executors cannot move across root tasks; queued or uncertain task creation cannot produce duplicates.
+- A successor must return `ONBOARDING_READY` with semantic lineage, HEAD, WIP ownership, three evidence levels, and invalidated conclusions; “read and ready” is insufficient.
+- Post-transfer `continue` triggers only one verified `post_transfer_next_action`; it neither asks for a new goal nor expands into product-write authority.
+- Two real Codex succession journeys were completed: the first real RED drove the correction, and the second real GREEN verified creation, waiting, messaging, control transfer, and post-transfer continuation.
 
 ## Why it exists
 
@@ -116,7 +125,7 @@ When routes materially differ, the controller reports:
 
 ### 8. Verifiable takeover and handoff
 
-A fresh controller does not treat a handoff as permanent truth. It checks a small number of decision-critical facts before dispatch. Handoff state preserves task and semantic lineage, workspace status, executor ownership, evidence level, invalidated conclusions, open decisions, and the next stop condition.
+A fresh controller does not treat a handoff as permanent truth. The predecessor prepares a temporary draft; only a new stakeholder confirmation after review permits successor creation. The successor verifies semantic lineage, workspace state, executor ownership, evidence levels, invalidated conclusions, and one concrete next action before returning `ONBOARDING_READY`. Active/paused writers, stale drafts, unknown dirty WIP, and incomplete onboarding block transfer. Post-transfer `continue` executes only the already-authorized action and then stops again.
 
 ## Good fits
 
@@ -154,7 +163,7 @@ git clone https://github.com/gaoc77436-bit/product-controller-skill.git ~/.codex
 To pin the current supervised beta:
 
 ```bash
-git checkout v0.1.0-beta.1
+git checkout v0.3.0-beta.1
 ```
 
 You can also download the ZIP and place it so this file exists:
@@ -195,7 +204,7 @@ These limits are part of the product, not fine print:
 1. **Not a permission sandbox.** It cannot technically prevent a model from writing product code or ignoring instructions.
 2. **No zero-rework guarantee.** It reduces semantic drift, state layering, and false acceptance; it cannot guarantee defect-free work.
 3. **Shared model blind spots.** Separate executor and verifier roles may still share reasoning biases when they use similar models.
-4. **Limited real-world validation.** The current release is backed mainly by synthetic stress tests and independent behavioral audit; full project lifecycles are still accumulating.
+4. **Real-world validation is still limited.** v0.3 includes two real Codex succession journeys and a trajectory-software rescue takeover, but more projects, cross-host transfers, and complete long-running lifecycles remain to be accumulated.
 5. **Protocol depends on compliance.** Task IDs, semantic versions, deadline generations, and ledgers are behavioral contracts rather than runtime-enforced transactions.
 6. **Handoffs can become stale.** Current code, runtime facts, and latest stakeholder feedback must always outrank handoff material.
 7. **Final acceptance remains human.** Visual experience, real operation, and physical-device results cannot be declared accepted solely by a model.
@@ -203,7 +212,7 @@ These limits are part of the product, not fine print:
 
 ## Current validation status
 
-`v0.1.0-beta.1` has passed supervised-trial checks covering:
+`v0.3.0-beta.1` has passed supervised-trial checks covering:
 
 - semantic versioning and supersession;
 - asynchronous start, pause, continuation, and deadline events;
@@ -212,6 +221,9 @@ These limits are part of the product, not fine print:
 - route cost and rework reporting;
 - atomic replacement, multi-state, and difficult acceptance paths;
 - dirty-worktree protection and controller handoff;
+- inherited delegation authority, cross-domain REDs, and a 24-turn stateful pressure chain;
+- stale drafts, active/paused writers, queued creation, and non-Git fallbacks;
+- two real Codex controller-succession journeys and a real `post_transfer_next_action` GREEN;
 - independent release audit.
 
 These results show that the contract improves decisions in evaluated scenarios. They do not prove reliable behavior in every real project.
@@ -226,6 +238,7 @@ product-controller/
 |-- README_EN.md
 `-- references/
     |-- operating-contract.md
+    |-- controller-succession.md
     |-- coordination-and-strategy.md
     |-- replacement-and-acceptance.md
     |-- evaluation-cases.md
