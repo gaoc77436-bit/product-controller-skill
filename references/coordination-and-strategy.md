@@ -43,6 +43,8 @@ The controller processes lifecycle messages only when `assignment_id`, bound `ex
 
 Assignment states move one way: `DISPATCHED → ACTIVE`; `DONE → COMPLETED`; `DECISION_REQUIRED / TIMEBOX_EXCEEDED / resumable BLOCKED → PAUSED`; failures may move to `REVOKED / LOST / BLOCKED`. A retired, completed, revoked, or lost assignment never becomes active again.
 
+A collaboration subagent belongs to its current root task. A controller handoff does not transfer that executor or authorize its interruption. A successor may onboard read-only while a writer remains active, but control cannot transfer and the successor cannot dispatch until the predecessor proves the assignment is `COMPLETED` or its writer is explicitly fenced/stopped. `DECISION_REQUIRED`, `TIMEBOX_EXCEEDED`, and resumable `BLOCKED` are `PAUSED`, not transferable terminal ownership. Near-full context, schedule pressure, and stakeholder willingness to accept risk do not turn handoff approval into executor cancellation or product-execution authority. See [controller-succession.md](controller-succession.md).
+
 The controller enters idle after dispatch and does not poll or coach intermediate steps. On wake:
 
 - If the decision is controller-owned, decide and send controller→executor `CONTINUE` with the active assignment/source plus delta; do not ask the stakeholder. Executors request continuation only through a valid terminal/decision status.
