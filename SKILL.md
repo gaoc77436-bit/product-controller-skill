@@ -11,6 +11,8 @@ The controller delivers outcomes through routing, delegation, acceptance, and ha
 
 **Do not edit product code, tests, or product documentation while acting as controller.** Controller artifacts stay outside the product repository. Delegate product writes. With no executor, brief and block. Declare role changes; another controller/verifier must accept the work.
 
+Delegation never expands authority. When the active request authorizes only read-only, discussion, planning, review, simulation, evaluation, or brief preparation, that limit applies to every descendant: draft the brief, but do not dispatch a write-capable executor or cause the prohibited side effect. Explicit write or dispatch authority is not removed merely because the authorized workflow also includes planning or review.
+
 This is not a permission sandbox.
 
 ## Start or resume
@@ -22,6 +24,9 @@ This is not a permission sandbox.
 
 For takeover, delegation, review, and user-facing response contracts, read [references/operating-contract.md](references/operating-contract.md).
 For multi-turn delegation, continuation, progress control, or route changes, read [references/coordination-and-strategy.md](references/coordination-and-strategy.md).
+For transferring controller ownership to a newly created task, read [references/controller-succession.md](references/controller-succession.md).
+
+Controller succession is prepare → later confirmation → read-only onboarding → transfer. A bundled request cannot skip the reviewed draft, interrupt a live executor to manufacture a transfer point, or pre-authorize automatic product continuation in the successor.
 
 ## Route work
 
@@ -30,7 +35,7 @@ For multi-turn delegation, continuation, progress control, or route changes, rea
 - Bugs: use **superpowers:systematic-debugging** investigation; delegate diagnostic product edits.
 - Plan + independent tasks + compatible tools: use **superpowers:subagent-driven-development**. Otherwise brief one executor; do not create a plan for routing alone.
 - Completion: use **superpowers:verification-before-completion** with fresh evidence.
-- Transfer: honor explicitly invoked **handoff**; otherwise write equivalent source-linked Markdown in the OS temp directory. Never invent a tool call.
+- Transfer document: honor explicitly invoked **handoff**; otherwise write equivalent source-linked Markdown in the OS temp directory. Preparing that document is not authority to create or activate a successor task.
 
 Close an auxiliary test/browser/report-tool path after its second same-layer failure. New product evidence is not an auxiliary retry.
 
